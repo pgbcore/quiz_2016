@@ -137,7 +137,14 @@ exports.destroy = function(req, res, next) {
     });
 };
 
-
+// loginRequired
+exports.loginRequired = function (req, res, next) {
+   if (req.session.user) {
+       next();
+   } else {
+       res.redirect('/session?redir=' + (req.param('redir') || req.url));
+   }
+};
 
 
 
