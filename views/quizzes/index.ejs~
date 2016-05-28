@@ -5,6 +5,8 @@
         <td>
            <a href="/quizzes/<%= quizzes[i].id %>"><%= quizzes[i].question %></a>
         </td>
+        <% if (session.user && session.user.autologout) { %>
+        <% session.user.autologout; %>
         <td>
            <a href="/quizzes/<%= quizzes[i].id %>/edit"><button>editar</button></a>
         </td>
@@ -14,8 +16,11 @@
               <button>borrar</button>
            </a>
         </td>
+        <% } %>
      </tr> 
   <% } %>
 </table>
 
+<% if (session.user && session.user.autologout) { %>
 <a href="/quizzes/new"><button type="button">Crear pregunta</button></a>
+<% } %>

@@ -83,3 +83,18 @@ exports.loginRequired = function (req, res, next) {
        res.redirect('/session?redir=' + (req.param('redir') || req.url));
    }
 };
+
+// Autologout
+exports.autologout = function (req, res, next) {
+   
+   req.session.user.expires = 20000;
+   
+   if (req.session.user) {
+      if (req.session.user.expires < Date.now()) {
+          delete req.session.user;
+      } else {
+          req.session.user.expires = Date.now()+20000;
+      }
+   }
+   next();
+};

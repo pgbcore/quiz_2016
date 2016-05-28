@@ -74,3 +74,27 @@ exports.destroy = function(req, res, next) {
     
     res.redirect("/session"); // redirect a login
 };
+
+// loginRequired
+exports.loginRequired = function (req, res, next) {
+   if (req.session.user) {
+       next();
+   } else {
+       res.redirect('/session?redir=' + (req.param('redir') || req.url));
+   }
+};
+
+// Autologout
+exports.autologout = function (req, res, next) {
+   
+   req.session.user.expires = 1000;
+   
+   if (req.session.user) {
+      if (req.session.user.expires < Date.now()) {
+          delete req.session.user;
+      } else {
+          req.session.user.expires = Date.now()+30000;
+      }
+   }
+   next();
+};
