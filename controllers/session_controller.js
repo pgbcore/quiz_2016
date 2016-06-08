@@ -2,6 +2,7 @@
 var models = require('../models');
 var Sequelize = require('sequelize');
 var url = require('url');
+var autologout = 2 * 60 * 1000;
 
 /*
  * Autenticar un usuario: Comprueba si el usuario esta registrado en users
@@ -52,7 +53,10 @@ exports.create = function(req, res, next) {
             if (user) {
     	        // Crear req.session.user y guardar campos id y username
     	        // La sesión se define por la existencia de: req.session.user
-    	        req.session.user = {id:user.id, username:user.username};
+    	        //req.session.user = {id:user.id, username:user.username};
+                var expireTime = Date.now() + autologout;
+                req.session.user = {id:user.id, username:user.username, expireTime:expireTime};
+ 
 
                 res.redirect(redir); // redirección a redir
             } else {
@@ -73,6 +77,7 @@ exports.destroy = function(req, res, next) {
     delete req.session.user;
     
     res.redirect("/session"); // redirect a login
+   
 };
 
 // loginRequired
@@ -85,16 +90,15 @@ exports.loginRequired = function (req, res, next) {
 };
 
 // Autologout
-exports.autologout = function (req, res, next) {
-   
-   req.session.user.expires = 20000;
-   
-   if (req.session.user) {
-      if (req.session.user.expires < Date.now()) {
-          delete req.session.user;
-      } else {
-          req.session.user.expires = Date.now()+20000;
-      }
-   }
-   next();
+exports.autologout = function(req, res, next) {
+
+  if (req.session.user) { // Hay una sesión iniciada
+
+  if (req.session.user.expireTime >= Date.now()) {
+      req.session.user.expireTime = Date.now() + autologout;
+  } else {
+      delete req.session.user;
+  }
+  }
+  next();
 };
